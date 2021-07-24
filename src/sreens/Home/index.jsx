@@ -5,6 +5,7 @@ import { Keyboard } from 'react-native';
 
 import InputTodo from '../../components/InputTodo';
 import TodoContent from '../../components/TodoContent';
+import { services } from '../../services';
 
 const HomeScreen = ({ navigation }) => {
   const [todos, setTodos] = React.useState([]);
@@ -14,9 +15,8 @@ const HomeScreen = ({ navigation }) => {
   const fetchTodos = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.get('http://192.168.1.6:5000/api/v1/todos');
-
-      setTodos(response.data.data);
+      const response = await services.getTodos();
+      setTodos(response);
       setIsLoading(false);
     } catch (error) {
       setIsLoading(false);
@@ -26,9 +26,7 @@ const HomeScreen = ({ navigation }) => {
 
   const postTodo = async () => {
     try {
-      const response = await axios.post('http://192.168.1.6:5000/api/v1/todo', {
-        title: inputValue,
-      });
+      await services.postTodo({ payload: { title: inputValue } });
 
       setInputValue('');
       Keyboard.dismiss();
@@ -41,10 +39,7 @@ const HomeScreen = ({ navigation }) => {
 
   const updateTodo = async ({ action, id, payload = {} }) => {
     try {
-      const response = await axios.patch(
-        `http://192.168.1.6:5000/api/v1/todo/${id}/${action}`,
-        payload,
-      );
+      await services.updateTodo({ id, action, payload });
 
       fetchTodos();
     } catch (error) {
